@@ -1,13 +1,22 @@
 const { Router } = require('express');
-const { getUsers, register } = require('../controllers/auth');
-const { validationMiddleware } = require('../middlewares/auth-middleware')
-const { registerValidation } = require('../validators/auth');
+const { getUsers, register, login, protected, logout } = require('../controllers/auth');
+const { validationMiddleware } = require('../middlewares/validations-middleware')
+const { registerValidation, loginvalidation } = require('../validators/auth');
+const { userAuth } = require('../middlewares/auth-middleware')
 const router = Router();
 
 
-// testing routes
-router.get('/get-users', getUsers)
+// ROUTES
 
-router.post('/register', registerValidation, validationMiddleware, register)
+// get all users (TESTING ROUTE)
+router.get('/get-users', getUsers);
+// protected route
+router.get('/protected', userAuth, protected);
+// register
+router.post('/register', registerValidation, validationMiddleware, register);
+// login
+router.post('/login', loginvalidation, validationMiddleware, login)
+// logout
+router.get('/logout', userAuth, logout);
 
 module.exports = router;

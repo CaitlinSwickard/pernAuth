@@ -1,5 +1,7 @@
 const db = require('../db');
 const { hash } = require('bcryptjs');
+const { sign } = require('jsonwebtoken');
+const { SECRET } = require('../constants');
 
 
 // ROUTES
@@ -37,7 +39,65 @@ exports.register = async (req, res) => {
   } catch (error) {
     console.log(error.message);
     return res.status(500).json({
-      error: error.message
+      error: error.message,
+    })
+  }
+}
+
+
+// login route
+exports.login = async (req, res) => {
+  let user = req.user;
+
+  let payload = {
+    id: user.user_id,
+    email: user.email,
+  }
+
+  try {
+    // JWT token
+    const token = await sign(payload, SECRET)
+    return res.status(200).cookie('token', token, { httpOnly: true }).json({
+      success: true,
+      message: 'Log in successful!'
+    })
+
+  } catch (error) {
+    console.log(error.message);
+    return res.status(500).json({
+      error: error.message,
+    })
+  }
+}
+
+
+// protected route
+exports.protected = async (req, res) => {
+  try {
+
+    return res.status(200).json({
+      info: 'protected info'
+    })
+
+  } catch (error) {
+    console.log(error.message)
+  }
+}
+
+
+// logout route
+exports.logout = async (req, res) => {
+  try {
+    // clear cookie from login session
+    return res.status(200).clearCookie('token', { httpOnly: true }).json({
+      success: true,
+      message: 'Logged out!',
+    })
+
+  } catch (error) {
+    console.log(error.message)
+    return res.status(500).json({
+      error: error.message,
     })
   }
 }
